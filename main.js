@@ -3,8 +3,10 @@ const select = document.querySelector('#select');
 const rdmButton = document.querySelector('#rdm-btn');
 const factButton = document.querySelector('#fact-btn');
 const insertText = document.querySelector(`.output`);
+let timer = null;
 
 const getFact = function () {
+    clearTimeout(timer);
     let i = 0;
     insertText.innerHTML = '';
     if (inp.value < 0) {
@@ -20,34 +22,32 @@ const getFact = function () {
             return response.json();
         }).then((data) => {
             console.log(data.text)
-            function typeWritter() {
-                if (i < data.text.length) {
-                    insertText.innerHTML += data.text.charAt(i);
-                    i++;
-                    setTimeout(typeWritter, 30); //TODO: add wait for setTimeout and disable getFact button, then enable after.
-                }
-            }
-            return typeWritter();
+            return typeWritter(i, data.text);
         });
     }
 }
 const getRdmFact = function () {
+    clearTimeout(timer);
     let i = 0;
     insertText.innerHTML = ' ';
     fetch(`http://numbersapi.com/random/${select.value}?json`).then((response) => {
         return response.json();
     }).then((data) => {
         console.log(data.text)
-        function typeWritter() {
-            if (i < data.text.length) {
-                insertText.innerHTML += data.text.charAt(i);
-                i++;
-                setTimeout(typeWritter, 30);
-            }
-        }
-        return typeWritter();
+        return typeWritter(i, data.text);
     });
 }
+
+function typeWritter(i, text) {
+    if (i < text.length) {
+        insertText.innerHTML += text.charAt(i);
+        i++;
+        timer = setTimeout(() => {
+            typeWritter(i, text);
+        }, 30);
+    }
+}
+
 rdmButton.addEventListener('click', getRdmFact);
 factButton.addEventListener('click', getFact);
 select.addEventListener('change', () => {
